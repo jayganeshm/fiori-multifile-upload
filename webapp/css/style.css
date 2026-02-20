@@ -1,0 +1,16 @@
+/* Custom styles for the upload page */
+
+.sapMPanel .sapMPanelContent {
+    padding: 1rem;
+}
+
+.uploadSetContainer .sapMUCDragDropOverlay {
+    border: 2px dashed #0a6ed1;
+    border-radius: 0.5rem;
+    background: rgba(10, 110, 209, 0.04);
+}
+
+.sapMListNoData {
+    font-style: italic;
+    color: #8a9bac;
+}

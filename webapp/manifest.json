@@ -1,0 +1,92 @@
+{
+    "_version": "1.21.0",
+    "sap.app": {
+        "id": "com.mycompany.fileupload",
+        "type": "application",
+        "title": "{{appTitle}}",
+        "description": "{{appDescription}}",
+        "applicationVersion": {
+            "version": "1.0.0"
+        },
+        "dataSources": {
+            "attachmentService": {
+                "uri": "/sap/opu/odata/sap/API_CV_ATTACHMENT_SRV/",
+                "type": "OData",
+                "settings": {
+                    "odataVersion": "2.0"
+                }
+            }
+        }
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "icons": {
+            "icon": "sap-icon://upload-to-cloud"
+        },
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "rootView": {
+            "viewName": "com.mycompany.fileupload.view.Upload",
+            "type": "XML",
+            "async": true,
+            "id": "app"
+        },
+        "dependencies": {
+            "minUI5Version": "1.108.0",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.ui.layout": {},
+                "sap.f": {}
+            }
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "com.mycompany.fileupload.i18n.i18n"
+                }
+            },
+            "attachment": {
+                "dataSource": "attachmentService",
+                "type": "sap.ui.model.odata.v2.ODataModel",
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "useBatch": false
+                }
+            }
+        },
+        "routing": {
+            "config": {
+                "routerClass": "sap.m.routing.Router",
+                "viewType": "XML",
+                "viewPath": "com.mycompany.fileupload.view",
+                "controlId": "app",
+                "controlAggregation": "pages",
+                "async": true
+            },
+            "routes": [
+                {
+                    "name": "upload",
+                    "pattern": "",
+                    "target": "upload"
+                }
+            ],
+            "targets": {
+                "upload": {
+                    "viewName": "Upload",
+                    "viewLevel": 1
+                }
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        }
+    }
+}

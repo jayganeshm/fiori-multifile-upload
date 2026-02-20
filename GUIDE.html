@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP Fiori UI5 - Multi-File Upload to S/4HANA On-Prem Guide</title>
+<style>
+  :root {
+    --sap-blue: #0a6ed1;
+    --sap-dark: #354a5f;
+    --sap-light: #f5f6f7;
+    --sap-green: #2b7c2b;
+    --sap-orange: #e78c07;
+    --sap-red: #bb0000;
+    --sap-gold: #d4a017;
+    --sap-teal: #0e8c7f;
+    --sap-purple: #7b3f9e;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: '72', 'Segoe UI', Arial, sans-serif;
+    background: var(--sap-light);
+    color: #333;
+    line-height: 1.7;
+  }
+
+  /* --- Hero --- */
+  .hero {
+    background: linear-gradient(135deg, #0a6ed1 0%, #354a5f 60%, #1a3a5c 100%);
+    color: white;
+    padding: 60px 40px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: -40px;
+    width: 400px; height: 400px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 50%;
+  }
+  .hero h1 { font-size: 2.6em; font-weight: 300; letter-spacing: -0.5px; margin-bottom: 12px; }
+  .hero h1 strong { font-weight: 700; }
+  .hero p { font-size: 1.15em; opacity: 0.85; max-width: 700px; margin: 0 auto; }
+  .hero-badges { margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hero-badge {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    backdrop-filter: blur(4px);
+  }
+
+  /* --- Container --- */
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+  /* --- Section --- */
+  .section { margin: 48px 0; }
+  .section-title {
+    font-size: 1.6em;
+    color: var(--sap-dark);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title .num {
+    background: var(--sap-blue);
+    color: white;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75em;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .section-sub { color: #6a7a8a; margin-bottom: 28px; font-size: 0.95em; }
+
+  /* --- Cards --- */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    padding: 28px;
+    margin-bottom: 24px;
+    border: 1px solid #e8ecef;
+  }
+  .card h3 { color: var(--sap-dark); margin-bottom: 12px; font-size: 1.15em; }
+  .card p { color: #555; }
+
+  /* --- Diagram boxes --- */
+  .diagram-container {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+    padding: 32px;
+    margin: 24px 0;
+    border: 1px solid #e4e8ec;
+    overflow-x: auto;
+  }
+  .diagram-label {
+    text-align: center;
+    font-size: 0.8em;
+    color: #8a9bac;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+  }
+
+  /* --- SVG common --- */
+  svg text { font-family: '72', 'Segoe UI', Arial, sans-serif; }
+
+  /* --- Code blocks --- */
+  .code-block {
+    background: #1e2736;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+  .code-header {
+    background: #161d28;
+    padding: 10px 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .code-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+  .code-dot.r { background: #ff5f56; }
+  .code-dot.y { background: #ffbd2e; }
+  .code-dot.g { background: #27c93f; }
+  .code-filename {
+    color: #8a9bac;
+    font-size: 0.8em;
+    margin-left: 10px;
+  }
+  .code-body {
+    padding: 20px;
+    overflow-x: auto;
+    font-size: 0.82em;
+    line-height: 1.65;
+  }
+  pre { margin: 0; }
+  code {
+    font-family: 'Fira Code', 'SF Mono', 'Consolas', monospace;
+    color: #c9d1d9;
+  }
+  .kw { color: #ff7b72; }
+  .str { color: #a5d6ff; }
+  .fn { color: #d2a8ff; }
+  .cm { color: #6a7a8a; font-style: italic; }
+  .tag { color: #7ee787; }
+  .attr { color: #79c0ff; }
+  .val { color: #ffa657; }
+  .num { color: #79c0ff; }
+  .type { color: #ff7b72; }
+
+  /* --- File tree --- */
+  .file-tree {
+    background: #fafbfc;
+    border: 1px solid #e1e4e8;
+    border-radius: 10px;
+    padding: 24px;
+    font-family: 'Fira Code', 'SF Mono', monospace;
+    font-size: 0.85em;
+    line-height: 2;
+    color: #444;
+  }
+  .file-tree .folder { color: var(--sap-blue); font-weight: 600; }
+  .file-tree .file { color: #555; }
+  .file-tree .desc { color: #999; font-style: italic; font-family: '72', Arial, sans-serif; }
+
+  /* --- Grids --- */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  @media (max-width: 768px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 1.8em; }
+  }
+
+  /* --- Step cards --- */
+  .step-card {
+    background: white;
+    border-radius: var(--radius);
+    border: 1px solid #e4e8ec;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    padding: 24px;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .step-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  }
+  .step-num {
+    position: absolute;
+    top: -14px;
+    left: 20px;
+    background: var(--sap-blue);
+    color: white;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8em;
+    font-weight: 700;
+  }
+  .step-card h4 { margin-top: 6px; color: var(--sap-dark); }
+  .step-card p { color: #666; font-size: 0.9em; margin-top: 8px; }
+
+  /* --- Feature pills --- */
+  .pill-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0; }
+  .pill {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.82em;
+    font-weight: 600;
+  }
+  .pill-blue { background: #e3f2fd; color: #0a6ed1; }
+  .pill-green { background: #e8f5e9; color: #2b7c2b; }
+  .pill-orange { background: #fff3e0; color: #e78c07; }
+  .pill-red { background: #fde8e8; color: #bb0000; }
+  .pill-purple { background: #f3e5f5; color: #7b3f9e; }
+  .pill-teal { background: #e0f2f1; color: #0e8c7f; }
+
+  /* --- Table --- */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.9em;
+  }
+  .data-table th {
+    background: var(--sap-dark);
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+  }
+  .data-table th:first-child { border-radius: 8px 0 0 0; }
+  .data-table th:last-child { border-radius: 0 8px 0 0; }
+  .data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #eee;
+  }
+  .data-table tr:hover td { background: #f8fafc; }
+  .data-table code {
+    background: #f0f3f6;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: var(--sap-dark);
+  }
+
+  /* --- Callout --- */
+  .callout {
+    border-left: 4px solid;
+    border-radius: 0 10px 10px 0;
+    padding: 18px 22px;
+    margin: 20px 0;
+    font-size: 0.92em;
+  }
+  .callout-info { border-color: var(--sap-blue); background: #eaf4fd; }
+  .callout-warn { border-color: var(--sap-orange); background: #fef8e7; }
+  .callout-ok { border-color: var(--sap-green); background: #eaf5ea; }
+  .callout-danger { border-color: var(--sap-red); background: #fdeaea; }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  /* --- Connector arrows (vertical timeline) --- */
+  .timeline { position: relative; padding-left: 40px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--sap-blue), var(--sap-teal));
+    border-radius: 2px;
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 28px;
+    background: white;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    border: 1px solid #e8ecef;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -33px;
+    top: 24px;
+    width: 13px; height: 13px;
+    background: var(--sap-blue);
+    border: 3px solid white;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--sap-blue);
+  }
+  .timeline-item h4 { color: var(--sap-dark); margin-bottom: 6px; }
+  .timeline-item p { color: #666; font-size: 0.9em; }
+  .timeline-item code {
+    background: #f0f3f6;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+
+  /* --- Footer --- */
+  .footer {
+    text-align: center;
+    padding: 40px;
+    color: #8a9bac;
+    font-size: 0.85em;
+    border-top: 1px solid #e4e8ec;
+    margin-top: 60px;
+  }
+
+  /* --- Animated icons --- */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .float-icon { animation: float 3s ease-in-out infinite; display: inline-block; }
+
+  /* --- Screen mockup --- */
+  .screen-mockup {
+    background: #f0f2f5;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #d8dce0;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    margin: 20px 0;
+  }
+  .screen-bar {
+    background: linear-gradient(to bottom, #e8eaed, #dfe1e4);
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .screen-bar-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .screen-url {
+    background: white;
+    flex: 1;
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-size: 0.75em;
+    color: #666;
+    margin-left: 8px;
+  }
+  .screen-body { padding: 0; }
+</style>
+</head>
+<body>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <p style="font-size:0.9em; opacity:0.6; margin-bottom:8px;">DEVELOPER GUIDE</p>
+  <h1><strong>Multi-File Upload</strong> to S/4HANA On-Prem</h1>
+  <p>Complete visual guide for building a SAP Fiori UI5 application with <code style="background:rgba(255,255,255,0.15);padding:2px 8px;border-radius:4px;">sap.m.upload.UploadSet</code></p>
+  <div class="hero-badges">
+    <span class="hero-badge">SAPUI5 1.108+</span>
+    <span class="hero-badge">OData V2</span>
+    <span class="hero-badge">S/4HANA On-Prem</span>
+    <span class="hero-badge">CSRF Protected</span>
+    <span class="hero-badge">Multiple Files</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ===== 1. ARCHITECTURE OVERVIEW ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">1</span> Architecture Overview</h2>
+  <p class="section-sub">How the UI5 frontend communicates with S/4HANA backend for file uploads</p>
+
+  <div class="diagram-container">
+    <div class="diagram-label">End-to-End Upload Architecture</div>
+    <svg viewBox="0 0 1000 420" xmlns="http://www.w3.org/2000/svg">
+      <!-- Browser box -->
+      <rect x="30" y="30" width="280" height="360" rx="14" fill="#eaf4fd" stroke="#0a6ed1" stroke-width="2"/>
+      <text x="170" y="60" text-anchor="middle" font-size="14" font-weight="700" fill="#0a6ed1">🌐 Browser (UI5 App)</text>
+
+      <!-- UI5 components inside browser -->
+      <rect x="55" y="80" width="230" height="55" rx="8" fill="white" stroke="#79c0ff" stroke-width="1.5"/>
+      <text x="170" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#354a5f">sap.m.upload.UploadSet</text>
+      <text x="170" y="120" text-anchor="middle" font-size="9" fill="#8a9bac">Multi-file selection &amp; validation</text>
+
+      <rect x="55" y="148" width="230" height="55" rx="8" fill="white" stroke="#79c0ff" stroke-width="1.5"/>
+      <text x="170" y="170" text-anchor="middle" font-size="11" font-weight="600" fill="#354a5f">Upload.controller.js</text>
+      <text x="170" y="188" text-anchor="middle" font-size="9" fill="#8a9bac">CSRF fetch → Sequential upload</text>
+
+      <rect x="55" y="216" width="230" height="55" rx="8" fill="white" stroke="#79c0ff" stroke-width="1.5"/>
+      <text x="170" y="238" text-anchor="middle" font-size="11" font-weight="600" fill="#354a5f">jQuery.ajax (XHR)</text>
+      <text x="170" y="256" text-anchor="middle" font-size="9" fill="#8a9bac">HTTP POST with binary payload</text>
+
+      <rect x="55" y="284" width="230" height="45" rx="8" fill="#fff3e0" stroke="#e78c07" stroke-width="1.5"/>
+      <text x="170" y="306" text-anchor="middle" font-size="11" font-weight="600" fill="#7a5a00">📊 Upload Log (JSONModel)</text>
+      <text x="170" y="320" text-anchor="middle" font-size="9" fill="#8a9bac">Success / Error tracking</text>
+
+      <rect x="55" y="340" width="106" height="36" rx="6" fill="#e8f5e9" stroke="#2b7c2b" stroke-width="1"/>
+      <text x="108" y="363" text-anchor="middle" font-size="9" font-weight="600" fill="#2b7c2b">✅ Valid</text>
+
+      <rect x="178" y="340" width="106" height="36" rx="6" fill="#fde8e8" stroke="#bb0000" stroke-width="1"/>
+      <text x="231" y="363" text-anchor="middle" font-size="9" font-weight="600" fill="#bb0000">❌ Rejected</text>
+
+      <!-- Arrow: Browser → S/4HANA -->
+      <defs>
+        <marker id="arrowBlue" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#0a6ed1"/>
+        </marker>
+        <marker id="arrowGreen" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#2b7c2b"/>
+        </marker>
+        <marker id="arrowOrange" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#e78c07"/>
+        </marker>
+      </defs>
+
+      <!-- CSRF arrow -->
+      <line x1="310" y1="110" x2="390" y2="110" stroke="#e78c07" stroke-width="2" marker-end="url(#arrowOrange)" stroke-dasharray="6,3"/>
+      <text x="350" y="100" text-anchor="middle" font-size="8" fill="#e78c07" font-weight="600">GET (Fetch CSRF)</text>
+
+      <!-- Token return -->
+      <line x1="390" y1="130" x2="310" y2="130" stroke="#e78c07" stroke-width="2" marker-end="url(#arrowOrange)" stroke-dasharray="6,3"/>
+      <text x="350" y="147" text-anchor="middle" font-size="8" fill="#e78c07">X-CSRF-Token</text>
+
+      <!-- Upload arrow -->
+      <line x1="310" y1="195" x2="390" y2="195" stroke="#0a6ed1" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+      <text x="350" y="186" text-anchor="middle" font-size="8" fill="#0a6ed1" font-weight="700">POST (File Binary)</text>
+
+      <!-- Response arrow -->
+      <line x1="390" y1="240" x2="310" y2="240" stroke="#2b7c2b" stroke-width="2" marker-end="url(#arrowGreen)"/>
+      <text x="350" y="258" text-anchor="middle" font-size="8" fill="#2b7c2b">201 Created / Error</text>
+
+      <!-- S/4HANA box -->
+      <rect x="400" y="30" width="260" height="360" rx="14" fill="#f0faf0" stroke="#2b7c2b" stroke-width="2"/>
+      <text x="530" y="60" text-anchor="middle" font-size="14" font-weight="700" fill="#2b7c2b">⚙️ S/4HANA (ICF/OData)</text>
+
+      <rect x="420" y="80" width="220" height="50" rx="8" fill="white" stroke="#a5d6a7" stroke-width="1.5"/>
+      <text x="530" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#354a5f">ICF Handler</text>
+      <text x="530" y="118" text-anchor="middle" font-size="9" fill="#8a9bac">CSRF validation &amp; auth check</text>
+
+      <rect x="420" y="143" width="220" height="50" rx="8" fill="white" stroke="#a5d6a7" stroke-width="1.5"/>
+      <text x="530" y="165" text-anchor="middle" font-size="11" font-weight="600" fill="#354a5f">OData Runtime</text>
+      <text x="530" y="181" text-anchor="middle" font-size="9" fill="#8a9bac">/IWBEP/ framework processing</text>
+
+      <rect x="420" y="206" width="220" height="50" rx="8" fill="white" stroke="#a5d6a7" stroke-width="1.5"/>
+      <text x="530" y="228" text-anchor="middle" font-size="11" font-weight="600" fill="#354a5f">DPC_EXT Class</text>
+      <text x="530" y="244" text-anchor="middle" font-size="9" fill="#8a9bac">CREATE_STREAM method</text>
+
+      <rect x="420" y="269" width="220" height="50" rx="8" fill="#fff3e0" stroke="#e78c07" stroke-width="1.5"/>
+      <text x="530" y="291" text-anchor="middle" font-size="11" font-weight="600" fill="#7a5a00">GOS / Archive Link</text>
+      <text x="530" y="307" text-anchor="middle" font-size="9" fill="#8a9bac">Business object attachment</text>
+
+      <rect x="420" y="332" width="220" height="45" rx="8" fill="#f3e5f5" stroke="#7b3f9e" stroke-width="1.5"/>
+      <text x="530" y="354" text-anchor="middle" font-size="11" font-weight="600" fill="#7b3f9e">Content Repository</text>
+      <text x="530" y="368" text-anchor="middle" font-size="9" fill="#8a9bac">Table / File system storage</text>
+
+      <!-- Arrows inside S/4 -->
+      <path d="M530 130 L530 143" stroke="#aaa" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+      <path d="M530 193 L530 206" stroke="#aaa" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+      <path d="M530 256 L530 269" stroke="#aaa" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+      <path d="M530 319 L530 332" stroke="#aaa" stroke-width="1.5" marker-end="url(#arrowBlue)"/>
+
+      <!-- Database -->
+      <rect x="720" y="90" width="240" height="280" rx="14" fill="#faf5ff" stroke="#7b3f9e" stroke-width="2"/>
+      <text x="840" y="120" text-anchor="middle" font-size="14" font-weight="700" fill="#7b3f9e">💾 Storage Layer</text>
+
+      <rect x="740" y="140" width="200" height="45" rx="8" fill="white" stroke="#ce93d8" stroke-width="1.5"/>
+      <text x="840" y="162" text-anchor="middle" font-size="11" font-weight="600" fill="#354a5f">SOFFDB Table</text>
+      <text x="840" y="177" text-anchor="middle" font-size="9" fill="#8a9bac">Binary content storage</text>
+
+      <rect x="740" y="198" width="200" height="45" rx="8" fill="white" stroke="#ce93d8" stroke-width="1.5"/>
+      <text x="840" y="220" text-anchor="middle" font-size="11" font-weight="600" fill="#354a5f">TOA01 / TOA02</text>
+      <text x="840" y="235" text-anchor="middle" font-size="9" fill="#8a9bac">Link tables (BOR → Content)</text>
+
+      <rect x="740" y="256" width="200" height="45" rx="8" fill="white" stroke="#ce93d8" stroke-width="1.5"/>
+      <text x="840" y="278" text-anchor="middle" font-size="11" font-weight="600" fill="#354a5f">SRGBTBREL</text>
+      <text x="840" y="293" text-anchor="middle" font-size="9" fill="#8a9bac">Generic Object Services links</text>
+
+      <rect x="740" y="314" width="200" height="45" rx="8" fill="#e0f2f1" stroke="#0e8c7f" stroke-width="1.5"/>
+      <text x="840" y="336" text-anchor="middle" font-size="11" font-weight="600" fill="#0e8c7f">File System / DMS</text>
+      <text x="840" y="351" text-anchor="middle" font-size="9" fill="#8a9bac">External content repo</text>
+
+      <!-- Arrow: S/4 → DB -->
+      <line x1="660" y1="240" x2="720" y2="240" stroke="#7b3f9e" stroke-width="2" marker-end="url(#arrowBlue)"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ===== 2. PROJECT STRUCTURE ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">2</span> Project Structure</h2>
+  <p class="section-sub">Standard Fiori project layout with MVC pattern</p>
+
+  <div class="grid-2">
+    <div class="file-tree">
+      <div><span class="folder">📁 webapp/</span></div>
+      <div>&nbsp;&nbsp;├─ <span class="file">📄 manifest.json</span> <span class="desc">← app descriptor &amp; OData config</span></div>
+      <div>&nbsp;&nbsp;├─ <span class="file">📄 Component.js</span> <span class="desc">← UI5 component root</span></div>
+      <div>&nbsp;&nbsp;├─ <span class="folder">📁 view/</span></div>
+      <div>&nbsp;&nbsp;│&nbsp;&nbsp;└─ <span class="file">📄 Upload.view.xml</span> <span class="desc">← UploadSet UI</span></div>
+      <div>&nbsp;&nbsp;├─ <span class="folder">📁 controller/</span></div>
+      <div>&nbsp;&nbsp;│&nbsp;&nbsp;└─ <span class="file">📄 Upload.controller.js</span> <span class="desc">← upload logic</span></div>
+      <div>&nbsp;&nbsp;├─ <span class="folder">📁 i18n/</span></div>
+      <div>&nbsp;&nbsp;│&nbsp;&nbsp;└─ <span class="file">📄 i18n.properties</span></div>
+      <div>&nbsp;&nbsp;└─ <span class="folder">📁 css/</span></div>
+      <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└─ <span class="file">📄 style.css</span> <span class="desc">← optional custom styles</span></div>
+    </div>
+
+    <div>
+      <div class="card" style="border-left:4px solid var(--sap-blue);">
+        <h3>📋 manifest.json</h3>
+        <p>Declares the OData data source pointing to your S/4HANA attachment service. Configures the root view and resource model.</p>
+        <div class="pill-row">
+          <span class="pill pill-blue">dataSources</span>
+          <span class="pill pill-green">sap.ui5.models</span>
+          <span class="pill pill-purple">routing</span>
+        </div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--sap-green);">
+        <h3>🎨 Upload.view.xml</h3>
+        <p>Contains the <code>UploadSet</code> control with file type/size validation, toolbar customization, and log panel.</p>
+        <div class="pill-row">
+          <span class="pill pill-green">UploadSet</span>
+          <span class="pill pill-teal">FileUploader</span>
+          <span class="pill pill-orange">Log List</span>
+        </div>
+      </div>
+      <div class="card" style="border-left:4px solid var(--sap-orange);">
+        <h3>🔧 Upload.controller.js</h3>
+        <p>Handles CSRF token fetch, sequential file upload via XHR, error parsing, and success/failure logging.</p>
+        <div class="pill-row">
+          <span class="pill pill-orange">CSRF</span>
+          <span class="pill pill-red">Error Handling</span>
+          <span class="pill pill-blue">Promise Chain</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 3. UPLOAD FLOW ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">3</span> Upload Flow — Step by Step</h2>
+  <p class="section-sub">What happens when the user clicks "Upload All"</p>
+
+  <div class="diagram-container">
+    <div class="diagram-label">Sequence Diagram — Multi-File Upload</div>
+    <svg viewBox="0 0 960 650" xmlns="http://www.w3.org/2000/svg">
+      <!-- Lifelines -->
+      <rect x="60" y="20" width="120" height="36" rx="8" fill="#0a6ed1" stroke="none"/>
+      <text x="120" y="43" text-anchor="middle" font-size="12" fill="white" font-weight="700">User</text>
+      <line x1="120" y1="56" x2="120" y2="630" stroke="#0a6ed1" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+      <rect x="260" y="20" width="140" height="36" rx="8" fill="#0a6ed1" stroke="none"/>
+      <text x="330" y="43" text-anchor="middle" font-size="12" fill="white" font-weight="700">UI5 Controller</text>
+      <line x1="330" y1="56" x2="330" y2="630" stroke="#0a6ed1" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+      <rect x="500" y="20" width="130" height="36" rx="8" fill="#2b7c2b" stroke="none"/>
+      <text x="565" y="43" text-anchor="middle" font-size="12" fill="white" font-weight="700">ICF / OData</text>
+      <line x1="565" y1="56" x2="565" y2="630" stroke="#2b7c2b" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+      <rect x="730" y="20" width="150" height="36" rx="8" fill="#7b3f9e" stroke="none"/>
+      <text x="805" y="43" text-anchor="middle" font-size="12" fill="white" font-weight="700">Content Repo / DB</text>
+      <line x1="805" y1="56" x2="805" y2="630" stroke="#7b3f9e" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+      <!-- Step 1: Select files -->
+      <line x1="120" y1="90" x2="330" y2="90" stroke="#354a5f" stroke-width="2" marker-end="url(#arrowBlue)"/>
+      <rect x="140" y="72" width="170" height="20" rx="4" fill="#eaf4fd"/>
+      <text x="225" y="86" text-anchor="middle" font-size="10" fill="#0a6ed1" font-weight="600">1. Select files (drag/browse)</text>
+
+      <!-- Step 2: Validate -->
+      <rect x="295" y="105" width="70" height="35" rx="6" fill="#fff3e0" stroke="#e78c07" stroke-width="1"/>
+      <text x="330" y="120" text-anchor="middle" font-size="9" fill="#7a5a00" font-weight="600">Validate</text>
+      <text x="330" y="132" text-anchor="middle" font-size="8" fill="#8a9bac">type/size</text>
+
+      <!-- Step 3: Click Upload All -->
+      <line x1="120" y1="160" x2="330" y2="160" stroke="#354a5f" stroke-width="2" marker-end="url(#arrowBlue)"/>
+      <rect x="145" y="144" width="165" height="18" rx="4" fill="#eaf4fd"/>
+      <text x="228" y="157" text-anchor="middle" font-size="10" fill="#0a6ed1" font-weight="600">2. Click "Upload All"</text>
+
+      <!-- Step 4: Confirm dialog -->
+      <line x1="330" y1="185" x2="120" y2="185" stroke="#354a5f" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="225" y="180" text-anchor="middle" font-size="9" fill="#666">MessageBox.confirm</text>
+
+      <line x1="120" y1="205" x2="330" y2="205" stroke="#2b7c2b" stroke-width="1.5"/>
+      <text x="225" y="200" text-anchor="middle" font-size="9" fill="#2b7c2b" font-weight="600">OK ✓</text>
+
+      <!-- Step 5: CSRF Token -->
+      <rect x="310" y="222" width="265" height="50" rx="8" fill="#fff8e1" stroke="#e78c07" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <line x1="330" y1="238" x2="565" y2="238" stroke="#e78c07" stroke-width="2" marker-end="url(#arrowOrange)"/>
+      <text x="448" y="233" text-anchor="middle" font-size="10" fill="#e78c07" font-weight="700">3. GET / (X-CSRF-Token: Fetch)</text>
+      <line x1="565" y1="258" x2="330" y2="258" stroke="#e78c07" stroke-width="2" marker-end="url(#arrowOrange)"/>
+      <text x="448" y="253" text-anchor="middle" font-size="9" fill="#e78c07">Token: "abc123..."</text>
+
+      <!-- Loop box -->
+      <rect x="290" y="290" width="540" height="210" rx="10" fill="none" stroke="#0a6ed1" stroke-width="2" stroke-dasharray="8,4"/>
+      <rect x="290" y="290" width="120" height="22" rx="6" fill="#0a6ed1"/>
+      <text x="350" y="305" text-anchor="middle" font-size="10" fill="white" font-weight="700">LOOP [each file]</text>
+
+      <!-- Step 6: POST file -->
+      <line x1="330" y1="330" x2="565" y2="330" stroke="#0a6ed1" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+      <text x="448" y="322" text-anchor="middle" font-size="10" fill="#0a6ed1" font-weight="700">4. POST /AttachmentContentSet</text>
+      <text x="448" y="345" text-anchor="middle" font-size="8" fill="#8a9bac">Headers: CSRF-Token, Content-Type, Slug, ObjectType, ObjectKey</text>
+
+      <!-- Step 7: OData → DB -->
+      <line x1="565" y1="370" x2="805" y2="370" stroke="#7b3f9e" stroke-width="2" marker-end="url(#arrowBlue)"/>
+      <text x="685" y="365" text-anchor="middle" font-size="10" fill="#7b3f9e" font-weight="600">5. CREATE_STREAM → Store</text>
+
+      <!-- Step 8: DB response -->
+      <line x1="805" y1="400" x2="565" y2="400" stroke="#7b3f9e" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="685" y="395" text-anchor="middle" font-size="9" fill="#7b3f9e">Doc ID / content_id</text>
+
+      <!-- Step 9: 201 response -->
+      <line x1="565" y1="430" x2="330" y2="430" stroke="#2b7c2b" stroke-width="2" marker-end="url(#arrowGreen)"/>
+      <text x="448" y="425" text-anchor="middle" font-size="10" fill="#2b7c2b" font-weight="600">6. 201 Created</text>
+
+      <!-- Step 10: Log entry -->
+      <rect x="295" y="448" width="70" height="28" rx="6" fill="#e8f5e9" stroke="#2b7c2b" stroke-width="1"/>
+      <text x="330" y="466" text-anchor="middle" font-size="9" fill="#2b7c2b" font-weight="600">Log ✓</text>
+
+      <!-- End loop label -->
+      <text x="820" y="495" text-anchor="end" font-size="9" fill="#0a6ed1">end loop</text>
+
+      <!-- Step 11: Final message -->
+      <line x1="330" y1="530" x2="120" y2="530" stroke="#354a5f" stroke-width="2" marker-end="url(#arrowBlue)"/>
+      <rect x="142" y="517" width="173" height="18" rx="4" fill="#e8f5e9"/>
+      <text x="228" y="530" text-anchor="middle" font-size="10" fill="#2b7c2b" font-weight="600">7. MessageBox.success</text>
+
+      <!-- Step 12: Refresh log -->
+      <line x1="330" y1="570" x2="120" y2="570" stroke="#354a5f" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="225" y="565" text-anchor="middle" font-size="9" fill="#666">Update Log Panel</text>
+
+      <!-- BusyIndicator label -->
+      <rect x="10" y="218" width="90" height="50" rx="6" fill="#f3e5f5" stroke="#7b3f9e" stroke-width="1"/>
+      <text x="55" y="240" text-anchor="middle" font-size="8" fill="#7b3f9e" font-weight="600">BusyIndicator</text>
+      <text x="55" y="255" text-anchor="middle" font-size="8" fill="#7b3f9e">show(0)</text>
+      <line x1="100" y1="243" x2="118" y2="243" stroke="#7b3f9e" stroke-width="1" stroke-dasharray="3,2"/>
+
+      <rect x="10" y="520" width="90" height="30" rx="6" fill="#f3e5f5" stroke="#7b3f9e" stroke-width="1"/>
+      <text x="55" y="540" text-anchor="middle" font-size="8" fill="#7b3f9e" font-weight="600">hide()</text>
+      <line x1="100" y1="535" x2="118" y2="535" stroke="#7b3f9e" stroke-width="1" stroke-dasharray="3,2"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ===== 4. CSRF TOKEN FLOW ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">4</span> CSRF Token — Why &amp; How</h2>
+  <p class="section-sub">S/4HANA on-prem requires CSRF tokens for all modifying requests (POST, PUT, DELETE)</p>
+
+  <div class="diagram-container">
+    <div class="diagram-label">CSRF Token Handshake</div>
+    <svg viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg">
+      <!-- Browser -->
+      <rect x="40" y="40" width="180" height="180" rx="12" fill="#eaf4fd" stroke="#0a6ed1" stroke-width="2"/>
+      <text x="130" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="#0a6ed1">🖥️ UI5 App</text>
+      <rect x="60" y="85" width="140" height="30" rx="6" fill="white" stroke="#79c0ff" stroke-width="1"/>
+      <text x="130" y="105" text-anchor="middle" font-size="10" fill="#354a5f">_csrfToken = null</text>
+
+      <rect x="60" y="135" width="140" height="30" rx="6" fill="#e8f5e9" stroke="#2b7c2b" stroke-width="1"/>
+      <text x="130" y="155" text-anchor="middle" font-size="10" fill="#2b7c2b">_csrfToken = "x3f..."</text>
+
+      <rect x="60" y="180" width="140" height="28" rx="6" fill="#fff3e0" stroke="#e78c07" stroke-width="1"/>
+      <text x="130" y="199" text-anchor="middle" font-size="9" fill="#7a5a00">Cached for session</text>
+
+      <!-- Server -->
+      <rect x="540" y="40" width="200" height="180" rx="12" fill="#f0faf0" stroke="#2b7c2b" stroke-width="2"/>
+      <text x="640" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="#2b7c2b">⚙️ S/4HANA ICF</text>
+      <rect x="560" y="85" width="160" height="30" rx="6" fill="white" stroke="#a5d6a7" stroke-width="1"/>
+      <text x="640" y="105" text-anchor="middle" font-size="10" fill="#354a5f">Generate token</text>
+
+      <rect x="560" y="135" width="160" height="30" rx="6" fill="white" stroke="#a5d6a7" stroke-width="1"/>
+      <text x="640" y="155" text-anchor="middle" font-size="10" fill="#354a5f">Validate on POST</text>
+
+      <rect x="560" y="180" width="160" height="28" rx="6" fill="#fde8e8" stroke="#bb0000" stroke-width="1"/>
+      <text x="640" y="199" text-anchor="middle" font-size="9" fill="#bb0000">403 if invalid/missing</text>
+
+      <!-- Step 1 arrow -->
+      <line x1="220" y1="100" x2="540" y2="100" stroke="#e78c07" stroke-width="2.5" marker-end="url(#arrowOrange)"/>
+      <rect x="290" y="80" width="190" height="22" rx="5" fill="#fff3e0" stroke="#e78c07" stroke-width="1"/>
+      <text x="385" y="95" text-anchor="middle" font-size="10" fill="#e78c07" font-weight="700">① GET / {X-CSRF-Token: Fetch}</text>
+
+      <!-- Step 2 arrow -->
+      <line x1="540" y1="150" x2="220" y2="150" stroke="#2b7c2b" stroke-width="2.5" marker-end="url(#arrowGreen)"/>
+      <rect x="295" y="131" width="180" height="22" rx="5" fill="#e8f5e9" stroke="#2b7c2b" stroke-width="1"/>
+      <text x="385" y="146" text-anchor="middle" font-size="10" fill="#2b7c2b" font-weight="700">② 200 + X-CSRF-Token: x3f...</text>
+
+      <!-- Step 3 arrow -->
+      <line x1="220" y1="195" x2="540" y2="195" stroke="#0a6ed1" stroke-width="2.5" marker-end="url(#arrowBlue)"/>
+      <rect x="270" y="177" width="225" height="22" rx="5" fill="#eaf4fd" stroke="#0a6ed1" stroke-width="1"/>
+      <text x="383" y="192" text-anchor="middle" font-size="10" fill="#0a6ed1" font-weight="700">③ POST /AttachmentContentSet + Token</text>
+    </svg>
+  </div>
+
+  <div class="callout callout-warn">
+    <strong>⚠️ Common CSRF Pitfalls</strong>
+    Tokens expire with the HTTP session. If you get a <code>403 Forbidden</code> response, clear <code>_csrfToken</code> and re-fetch. In the code, the token is fetched once and cached for the upload batch.
+  </div>
+</div>
+
+<!-- ===== 5. UI MOCKUP ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">5</span> UI Mockup</h2>
+  <p class="section-sub">What the upload page looks like in the browser</p>
+
+  <div class="screen-mockup">
+    <div class="screen-bar">
+      <span class="screen-bar-dot" style="background:#ff5f56"></span>
+      <span class="screen-bar-dot" style="background:#ffbd2e"></span>
+      <span class="screen-bar-dot" style="background:#27c93f"></span>
+      <span class="screen-url">https://s4hana.company.com/sap/bc/ui5_ui5/sap/zfileupload/index.html</span>
+    </div>
+    <div class="screen-body">
+      <svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg">
+        <!-- Page background -->
+        <rect width="900" height="520" fill="#f5f6f7"/>
+
+        <!-- Shell bar -->
+        <rect width="900" height="44" fill="#354a5f"/>
+        <text x="20" y="28" font-size="14" fill="white" font-weight="700">SAP</text>
+        <text x="55" y="28" font-size="12" fill="rgba(255,255,255,0.7)">| Multi-File Upload</text>
+        <circle cx="860" cy="22" r="14" fill="rgba(255,255,255,0.15)"/>
+        <text x="860" y="27" text-anchor="middle" font-size="11" fill="white">JM</text>
+
+        <!-- Page header -->
+        <rect y="44" width="900" height="48" fill="white" stroke="#e4e8ec" stroke-width="1"/>
+        <text x="24" y="74" font-size="16" fill="#354a5f" font-weight="700">Upload Documents to S/4HANA</text>
+        <rect x="770" y="56" width="110" height="32" rx="4" fill="#0a6ed1"/>
+        <text x="825" y="77" text-anchor="middle" font-size="11" fill="white" font-weight="600">⬆ Upload All</text>
+
+        <!-- Upload area -->
+        <rect x="20" y="106" width="860" height="210" rx="8" fill="white" stroke="#e4e8ec" stroke-width="1"/>
+        <text x="40" y="132" font-size="13" fill="#354a5f" font-weight="700">Selected Files</text>
+        <rect x="760" y="114" width="100" height="28" rx="4" fill="transparent" stroke="#0a6ed1" stroke-width="1.5"/>
+        <text x="810" y="133" text-anchor="middle" font-size="10" fill="#0a6ed1" font-weight="600">+ Add Files</text>
+
+        <!-- Drag zone -->
+        <rect x="40" y="148" width="820" height="60" rx="8" fill="#fafbfc" stroke="#cfd8e0" stroke-width="1.5" stroke-dasharray="8,5"/>
+        <text x="450" y="175" text-anchor="middle" font-size="12" fill="#8a9bac">📎 Drag &amp; drop files here, or use "Add Files" button</text>
+        <text x="450" y="195" text-anchor="middle" font-size="9" fill="#aab5c0">Allowed: pdf, doc, docx, xls, xlsx, png, jpg, txt, csv, zip · Max: 10 MB each</text>
+
+        <!-- File list -->
+        <line x1="40" y1="220" x2="860" y2="220" stroke="#eee" stroke-width="1"/>
+
+        <!-- File 1 -->
+        <rect x="44" y="228" width="32" height="32" rx="4" fill="#eaf4fd"/>
+        <text x="60" y="249" text-anchor="middle" font-size="14">📄</text>
+        <text x="86" y="244" font-size="11" fill="#354a5f" font-weight="600">Invoice_2024_Q4.pdf</text>
+        <text x="86" y="258" font-size="9" fill="#8a9bac">2.3 MB · PDF Document</text>
+        <text x="830" y="248" font-size="12" fill="#bb0000" text-anchor="middle">✕</text>
+
+        <!-- File 2 -->
+        <rect x="44" y="268" width="32" height="32" rx="4" fill="#e8f5e9"/>
+        <text x="60" y="289" text-anchor="middle" font-size="14">📊</text>
+        <text x="86" y="284" font-size="11" fill="#354a5f" font-weight="600">PO_Report_Jan2025.xlsx</text>
+        <text x="86" y="298" font-size="9" fill="#8a9bac">1.1 MB · Excel Spreadsheet</text>
+        <text x="830" y="288" font-size="12" fill="#bb0000" text-anchor="middle">✕</text>
+
+        <!-- File 3 -->
+        <rect x="44" y="268" width="32" height="32" rx="4" fill="transparent"/>
+
+        <!-- Upload Params panel -->
+        <rect x="20" y="326" width="860" height="54" rx="8" fill="white" stroke="#e4e8ec" stroke-width="1"/>
+        <text x="50" y="358" font-size="12" fill="#354a5f" font-weight="600">▸ Upload Parameters (Optional)</text>
+        <text x="300" y="358" font-size="10" fill="#8a9bac">Business Object Type, Object Key, Semantic Object</text>
+
+        <!-- Upload Log panel -->
+        <rect x="20" y="392" width="860" height="120" rx="8" fill="white" stroke="#e4e8ec" stroke-width="1"/>
+        <text x="40" y="418" font-size="13" fill="#354a5f" font-weight="700">Upload Log</text>
+
+        <!-- Log entry 1 - success -->
+        <rect x="40" y="430" width="820" height="32" rx="4" fill="#f6fdf6"/>
+        <circle cx="58" cy="446" r="8" fill="#2b7c2b"/>
+        <text x="58" y="450" text-anchor="middle" font-size="10" fill="white">✓</text>
+        <text x="78" y="450" font-size="11" fill="#354a5f" font-weight="600">Invoice_2024_Q4.pdf</text>
+        <text x="370" y="450" font-size="10" fill="#2b7c2b">Success</text>
+
+        <!-- Log entry 2 - success -->
+        <rect x="40" y="468" width="820" height="32" rx="4" fill="#f6fdf6"/>
+        <circle cx="58" cy="484" r="8" fill="#2b7c2b"/>
+        <text x="58" y="488" text-anchor="middle" font-size="10" fill="white">✓</text>
+        <text x="78" y="488" font-size="11" fill="#354a5f" font-weight="600">PO_Report_Jan2025.xlsx</text>
+        <text x="370" y="488" font-size="10" fill="#2b7c2b">Success</text>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 6. HTTP REQUEST DETAIL ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">6</span> HTTP Request Anatomy</h2>
+  <p class="section-sub">Exact headers and payload sent for each file upload</p>
+
+  <div class="diagram-container">
+    <div class="diagram-label">Single File POST Request</div>
+    <svg viewBox="0 0 860 340" xmlns="http://www.w3.org/2000/svg">
+      <!-- Request box -->
+      <rect x="20" y="20" width="400" height="300" rx="10" fill="#1e2736"/>
+      <rect x="20" y="20" width="400" height="32" rx="10" fill="#161d28"/>
+      <circle cx="40" cy="36" r="5" fill="#ff5f56"/>
+      <circle cx="58" cy="36" r="5" fill="#ffbd2e"/>
+      <circle cx="76" cy="36" r="5" fill="#27c93f"/>
+      <text x="120" y="40" font-size="10" fill="#6a7a8a">REQUEST</text>
+
+      <text x="40" y="72" font-size="11" fill="#ff7b72" font-weight="700">POST</text>
+      <text x="74" y="72" font-size="10" fill="#a5d6ff">/sap/opu/odata/sap/API_CV_ATTACHMENT_SRV/AttachmentContentSet</text>
+
+      <text x="40" y="100" font-size="10" fill="#6a7a8a">Headers:</text>
+      <text x="40" y="118" font-size="10"><tspan fill="#79c0ff">X-CSRF-Token:</tspan><tspan fill="#c9d1d9"> abc123-token-value</tspan></text>
+      <text x="40" y="136" font-size="10"><tspan fill="#79c0ff">Content-Type:</tspan><tspan fill="#c9d1d9"> application/pdf</tspan></text>
+      <text x="40" y="154" font-size="10"><tspan fill="#79c0ff">Slug:</tspan><tspan fill="#c9d1d9"> Invoice_2024_Q4.pdf</tspan></text>
+      <text x="40" y="172" font-size="10"><tspan fill="#79c0ff">BusinessObjectTypeName:</tspan><tspan fill="#c9d1d9"> BUS2012</tspan></text>
+      <text x="40" y="190" font-size="10"><tspan fill="#79c0ff">LinkedSAPObjectKey:</tspan><tspan fill="#c9d1d9"> 4500000001</tspan></text>
+      <text x="40" y="208" font-size="10"><tspan fill="#79c0ff">SemanticObjectType:</tspan><tspan fill="#c9d1d9"> PurchaseOrder</tspan></text>
+
+      <line x1="40" y1="222" x2="400" y2="222" stroke="#333" stroke-width="1"/>
+      <text x="40" y="242" font-size="10" fill="#6a7a8a">Body:</text>
+      <text x="40" y="260" font-size="10" fill="#ffa657">&lt;raw binary data of file&gt;</text>
+      <rect x="40" y="270" width="340" height="30" rx="4" fill="#2a3545"/>
+      <text x="210" y="290" text-anchor="middle" font-size="9" fill="#8a9bac">📦 Binary file content (processData: false)</text>
+
+      <!-- Response box -->
+      <rect x="460" y="20" width="380" height="180" rx="10" fill="#1e2736"/>
+      <rect x="460" y="20" width="380" height="32" rx="10" fill="#161d28"/>
+      <circle cx="480" cy="36" r="5" fill="#ff5f56"/>
+      <circle cx="498" cy="36" r="5" fill="#ffbd2e"/>
+      <circle cx="516" cy="36" r="5" fill="#27c93f"/>
+      <text x="560" y="40" font-size="10" fill="#6a7a8a">RESPONSE (Success)</text>
+
+      <text x="480" y="72" font-size="11" fill="#7ee787" font-weight="700">201 Created</text>
+
+      <text x="480" y="100" font-size="10" fill="#6a7a8a">Body (JSON):</text>
+      <text x="480" y="118" font-size="10" fill="#c9d1d9">{</text>
+      <text x="496" y="136" font-size="10"><tspan fill="#79c0ff">"DocumentInfoRecordDocType"</tspan><tspan fill="#c9d1d9">: </tspan><tspan fill="#a5d6ff">"ATT"</tspan></text>
+      <text x="496" y="154" font-size="10"><tspan fill="#79c0ff">"LogicalDocument"</tspan><tspan fill="#c9d1d9">: </tspan><tspan fill="#a5d6ff">"0000012345"</tspan></text>
+      <text x="496" y="172" font-size="10"><tspan fill="#79c0ff">"ArchiveDocumentID"</tspan><tspan fill="#c9d1d9">: </tspan><tspan fill="#a5d6ff">"F1K..."</tspan></text>
+      <text x="480" y="190" font-size="10" fill="#c9d1d9">}</text>
+
+      <!-- Error response -->
+      <rect x="460" y="218" width="380" height="102" rx="10" fill="#1e2736"/>
+      <rect x="460" y="218" width="380" height="32" rx="10" fill="#2a1515"/>
+      <circle cx="480" cy="234" r="5" fill="#ff5f56"/>
+      <circle cx="498" cy="234" r="5" fill="#ffbd2e"/>
+      <circle cx="516" cy="234" r="5" fill="#27c93f"/>
+      <text x="560" y="238" font-size="10" fill="#ff7b72">RESPONSE (Error)</text>
+
+      <text x="480" y="268" font-size="11" fill="#ff7b72" font-weight="700">400 / 403 / 500</text>
+      <text x="480" y="292" font-size="10" fill="#c9d1d9">{ "error": { "message": {</text>
+      <text x="496" y="308" font-size="10"><tspan fill="#79c0ff">"value"</tspan><tspan fill="#c9d1d9">: </tspan><tspan fill="#ff7b72">"Object type not found"</tspan></text>
+    </svg>
+  </div>
+</div>
+
+<!-- ===== 7. OData SERVICE OPTIONS ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">7</span> OData Service Options</h2>
+  <p class="section-sub">Choose the right backend service for your use case</p>
+
+  <div class="card">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>URL Path</th>
+          <th>Entity Set</th>
+          <th>Use Case</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Standard Attachment API</strong></td>
+          <td><code>/sap/opu/odata/sap/API_CV_ATTACHMENT_SRV</code></td>
+          <td><code>AttachmentContentSet</code></td>
+          <td>Attach files to SAP business objects (PO, SO, Material, etc.)</td>
+        </tr>
+        <tr>
+          <td><strong>DMS Attachment API</strong></td>
+          <td><code>/sap/opu/odata/sap/CV_ATTACHMENT_SRV</code></td>
+          <td><code>OriginalContentSet</code></td>
+          <td>Document Management System integration</td>
+        </tr>
+        <tr>
+          <td><strong>Custom Z-Service</strong></td>
+          <td><code>/sap/opu/odata/sap/ZFILE_UPLOAD_SRV</code></td>
+          <td><code>FileSet</code></td>
+          <td>Custom logic via SEGW with <code>CREATE_STREAM</code></td>
+        </tr>
+        <tr>
+          <td><strong>GW Sample</strong></td>
+          <td><code>/sap/opu/odata/IWFND/CATALOGSERVICE</code></td>
+          <td>—</td>
+          <td>Testing connectivity only</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2">
+    <div class="callout callout-ok">
+      <strong>✅ Recommended: Standard API</strong>
+      Use <code>API_CV_ATTACHMENT_SRV</code> when attaching files to standard SAP business objects. No custom ABAP needed.
+    </div>
+    <div class="callout callout-info">
+      <strong>💡 Custom Service</strong>
+      Build a Z-service in SEGW when you need custom validation, virus scanning, or non-standard storage locations.
+    </div>
+  </div>
+</div>
+
+<!-- ===== 8. KEY CODE WALKTHROUGH ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">8</span> Key Code Walkthrough</h2>
+  <p class="section-sub">The most important code blocks explained visually</p>
+
+  <!-- Code 1: CSRF fetch -->
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-dot r"></span>
+      <span class="code-dot y"></span>
+      <span class="code-dot g"></span>
+      <span class="code-filename">Upload.controller.js — CSRF Token Fetch</span>
+    </div>
+    <div class="code-body">
+<pre><code><span class="fn">_fetchCsrfToken</span>: <span class="kw">function</span> () {
+    <span class="kw">var</span> that = <span class="kw">this</span>;
+    <span class="kw">return new</span> <span class="type">Promise</span>(<span class="kw">function</span> (resolve, reject) {
+        <span class="cm">// Skip if already cached</span>
+        <span class="kw">if</span> (that._csrfToken) { resolve(that._csrfToken); <span class="kw">return</span>; }
+
+        $.ajax({
+            url:     that._serviceUrl + <span class="str">"/"</span>,
+            method:  <span class="str">"GET"</span>,
+            headers: { <span class="str">"X-CSRF-Token"</span>: <span class="str">"Fetch"</span> },  <span class="cm">// ← magic header</span>
+            success: <span class="kw">function</span> (data, status, xhr) {
+                that._csrfToken = xhr.getResponseHeader(<span class="str">"X-CSRF-Token"</span>);
+                resolve(that._csrfToken);
+            },
+            error: <span class="kw">function</span> (xhr) {
+                reject(<span class="kw">new</span> Error(<span class="str">"CSRF fetch failed: "</span> + xhr.status));
+            }
+        });
+    });
+},</code></pre>
+    </div>
+  </div>
+
+  <!-- Code 2: Sequential upload -->
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-dot r"></span>
+      <span class="code-dot y"></span>
+      <span class="code-dot g"></span>
+      <span class="code-filename">Upload.controller.js — Sequential File Upload (Promise Chain)</span>
+    </div>
+    <div class="code-body">
+<pre><code><span class="fn">_uploadFilesSequentially</span>: <span class="kw">function</span> (aItems, sToken) {
+    <span class="kw">var</span> that = <span class="kw">this</span>, aResults = [];
+
+    <span class="cm">// Reduce items into a promise chain: file1 → file2 → file3 → ...</span>
+    <span class="kw">return</span> aItems.<span class="fn">reduce</span>(<span class="kw">function</span> (pChain, oItem) {
+        <span class="kw">return</span> pChain.<span class="fn">then</span>(<span class="kw">function</span> () {
+            <span class="kw">return</span> that.<span class="fn">_uploadSingleFile</span>(oItem, sToken)
+                .<span class="fn">then</span>(<span class="kw">function</span> (oResult) { aResults.push(oResult); });
+        });
+    }, <span class="type">Promise</span>.resolve()).<span class="fn">then</span>(<span class="kw">function</span> () {
+        <span class="kw">return</span> aResults;
+    });
+},</code></pre>
+    </div>
+  </div>
+
+  <!-- Code 3: Single file POST -->
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-dot r"></span>
+      <span class="code-dot y"></span>
+      <span class="code-dot g"></span>
+      <span class="code-filename">Upload.controller.js — Single File POST</span>
+    </div>
+    <div class="code-body">
+<pre><code><span class="fn">_uploadSingleFile</span>: <span class="kw">function</span> (oItem, sToken) {
+    <span class="kw">var</span> oFile     = oItem.<span class="fn">getFileObject</span>();
+    <span class="kw">var</span> sMimeType = oFile.type || <span class="str">"application/octet-stream"</span>;
+
+    <span class="kw">return new</span> <span class="type">Promise</span>(<span class="kw">function</span> (resolve) {
+        $.ajax({
+            url:     that._serviceUrl + <span class="str">"/AttachmentContentSet"</span>,
+            method:  <span class="str">"POST"</span>,
+            headers: {
+                <span class="str">"X-CSRF-Token"</span>:           sToken,     <span class="cm">// ← from step 1</span>
+                <span class="str">"Content-Type"</span>:            sMimeType,  <span class="cm">// ← file MIME type</span>
+                <span class="str">"Slug"</span>:                    sSlug,      <span class="cm">// ← URL-encoded filename</span>
+                <span class="str">"BusinessObjectTypeName"</span>:  sObjectType,
+                <span class="str">"LinkedSAPObjectKey"</span>:      sObjectKey
+            },
+            processData: <span class="kw">false</span>,   <span class="cm">// ← don't transform binary</span>
+            contentType: sMimeType,
+            data:        oFile,    <span class="cm">// ← raw File object</span>
+            success: <span class="kw">function</span> () { resolve({ success: <span class="kw">true</span> }); },
+            error:   <span class="kw">function</span> (xhr) { resolve({ success: <span class="kw">false</span> }); }
+        });
+    });
+},</code></pre>
+    </div>
+  </div>
+
+  <!-- Code 4: View XML -->
+  <div class="code-block">
+    <div class="code-header">
+      <span class="code-dot r"></span>
+      <span class="code-dot y"></span>
+      <span class="code-dot g"></span>
+      <span class="code-filename">Upload.view.xml — UploadSet Control</span>
+    </div>
+    <div class="code-body">
+<pre><code><span class="tag">&lt;upload:UploadSet</span>
+    <span class="attr">id</span>=<span class="val">"uploadSet"</span>
+    <span class="attr">instantUpload</span>=<span class="val">"false"</span>             <span class="cm">&lt;!-- manual trigger, not auto --&gt;</span>
+    <span class="attr">maxFileSize</span>=<span class="val">"10"</span>                  <span class="cm">&lt;!-- 10 MB limit --&gt;</span>
+    <span class="attr">maxFileNameLength</span>=<span class="val">"100"</span>
+    <span class="attr">mediaTypes</span>=<span class="val">"pdf,doc,docx,xls,xlsx,png,jpg,txt,csv,zip"</span>
+    <span class="attr">fileTypeMismatch</span>=<span class="val">".onFileTypeMismatch"</span>
+    <span class="attr">fileSizeExceeded</span>=<span class="val">".onFileSizeExceeded"</span>
+    <span class="attr">afterItemAdded</span>=<span class="val">".onAfterItemAdded"</span>
+    <span class="attr">uploadCompleted</span>=<span class="val">".onUploadCompleted"</span><span class="tag">&gt;</span>
+
+    <span class="tag">&lt;upload:toolbar&gt;</span>
+        <span class="tag">&lt;OverflowToolbar&gt;</span>
+            <span class="tag">&lt;Title</span> <span class="attr">text</span>=<span class="val">"Selected Files"</span> <span class="tag">/&gt;</span>
+            <span class="tag">&lt;ToolbarSpacer /&gt;</span>
+            <span class="tag">&lt;FileUploader</span>
+                <span class="attr">multiple</span>=<span class="val">"true"</span>        <span class="cm">&lt;!-- ← enables multi-select --&gt;</span>
+                <span class="attr">buttonOnly</span>=<span class="val">"true"</span>
+                <span class="attr">buttonText</span>=<span class="val">"Add Files"</span> <span class="tag">/&gt;</span>
+        <span class="tag">&lt;/OverflowToolbar&gt;</span>
+    <span class="tag">&lt;/upload:toolbar&gt;</span>
+
+<span class="tag">&lt;/upload:UploadSet&gt;</span></code></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 9. ERROR HANDLING ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">9</span> Error Handling Strategy</h2>
+  <p class="section-sub">How errors are caught, parsed, and displayed to the user</p>
+
+  <div class="diagram-container">
+    <div class="diagram-label">Error Flow Diagram</div>
+    <svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- Start -->
+      <rect x="20" y="130" width="120" height="44" rx="22" fill="#0a6ed1"/>
+      <text x="80" y="157" text-anchor="middle" font-size="12" fill="white" font-weight="600">POST File</text>
+
+      <line x1="140" y1="152" x2="195" y2="152" stroke="#0a6ed1" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+      <!-- Decision -->
+      <polygon points="270,110 345,152 270,194 195,152" fill="white" stroke="#354a5f" stroke-width="2"/>
+      <text x="270" y="148" text-anchor="middle" font-size="10" fill="#354a5f" font-weight="600">HTTP</text>
+      <text x="270" y="162" text-anchor="middle" font-size="10" fill="#354a5f" font-weight="600">Status?</text>
+
+      <!-- 2xx path -->
+      <line x1="270" y1="110" x2="270" y2="50" stroke="#2b7c2b" stroke-width="2" marker-end="url(#arrowGreen)"/>
+      <text x="282" y="85" font-size="9" fill="#2b7c2b" font-weight="700">2xx</text>
+      <rect x="200" y="14" width="140" height="38" rx="8" fill="#e8f5e9" stroke="#2b7c2b" stroke-width="1.5"/>
+      <text x="270" y="38" text-anchor="middle" font-size="11" fill="#2b7c2b" font-weight="600">✅ Log Success</text>
+
+      <!-- Error path -->
+      <line x1="345" y1="152" x2="420" y2="152" stroke="#bb0000" stroke-width="2" marker-end="url(#arrowBlue)"/>
+      <text x="383" y="143" font-size="9" fill="#bb0000" font-weight="700">4xx/5xx</text>
+
+      <!-- Parse error -->
+      <rect x="420" y="130" width="140" height="44" rx="8" fill="#fff3e0" stroke="#e78c07" stroke-width="1.5"/>
+      <text x="490" y="150" text-anchor="middle" font-size="10" fill="#7a5a00" font-weight="600">_parseError(xhr)</text>
+      <text x="490" y="165" text-anchor="middle" font-size="9" fill="#8a9bac">Extract message</text>
+
+      <line x1="560" y1="152" x2="620" y2="152" stroke="#354a5f" stroke-width="2" marker-end="url(#arrowBlue)"/>
+
+      <!-- Log error -->
+      <rect x="620" y="130" width="120" height="44" rx="8" fill="#fde8e8" stroke="#bb0000" stroke-width="1.5"/>
+      <text x="680" y="157" text-anchor="middle" font-size="11" fill="#bb0000" font-weight="600">❌ Log Error</text>
+
+      <!-- Both converge to continue -->
+      <line x1="270" y1="14" x2="270" y2="0" stroke="#2b7c2b" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <path d="M270 0 Q270 -15, 800 -15 Q815 -15, 815 60 L815 250" stroke="#888" stroke-width="1.5" stroke-dasharray="4,2" fill="none"/>
+      <line x1="680" y1="174" x2="680" y2="250" stroke="#888" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+      <!-- Next file -->
+      <line x1="680" y1="250" x2="815" y2="250" stroke="#888" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <rect x="680" y="250" width="180" height="44" rx="8" fill="#eaf4fd" stroke="#0a6ed1" stroke-width="1.5"/>
+      <text x="770" y="270" text-anchor="middle" font-size="10" fill="#0a6ed1" font-weight="600">Next file in queue</text>
+      <text x="770" y="285" text-anchor="middle" font-size="9" fill="#8a9bac">resolve() → never rejects</text>
+
+      <!-- Error types sidebar -->
+      <rect x="420" y="210" width="310" height="100" rx="8" fill="white" stroke="#e4e8ec" stroke-width="1"/>
+      <text x="440" y="232" font-size="11" fill="#354a5f" font-weight="700">Common Error Responses:</text>
+      <text x="440" y="252" font-size="10"><tspan fill="#bb0000" font-weight="600">403</tspan><tspan fill="#666"> — CSRF token expired / missing</tspan></text>
+      <text x="440" y="270" font-size="10"><tspan fill="#bb0000" font-weight="600">400</tspan><tspan fill="#666"> — Invalid business object type / key</tspan></text>
+      <text x="440" y="288" font-size="10"><tspan fill="#bb0000" font-weight="600">413</tspan><tspan fill="#666"> — Payload too large (ICF limit)</tspan></text>
+      <text x="440" y="306" font-size="10"><tspan fill="#bb0000" font-weight="600">500</tspan><tspan fill="#666"> — ABAP runtime error / dump</tspan></text>
+    </svg>
+  </div>
+
+  <div class="callout callout-danger">
+    <strong>Important: Never reject upload promises!</strong>
+    Each file's upload promise always <code>resolve()</code>s (with <code>success: true/false</code>), so a single file failure never aborts remaining files. The final summary counts successes and failures.
+  </div>
+</div>
+
+<!-- ===== 10. BACKEND SETUP ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">10</span> Backend Setup (S/4HANA)</h2>
+  <p class="section-sub">Steps to configure the OData service on the ABAP side</p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <h4>Transaction SEGW — Create/Check OData Service</h4>
+      <p>For custom services: create a project in <code>SEGW</code>, define an Entity Type with <code>Media</code> flag enabled. Generate runtime artifacts. For the standard API, this step is already done — just activate the service.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>Transaction /IWFND/MAINT_SERVICE — Activate Service</h4>
+      <p>Register and activate <code>API_CV_ATTACHMENT_SRV</code> (or your Z-service) in the gateway hub. Assign a system alias pointing to the backend.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>DPC_EXT — Implement CREATE_STREAM (Custom Only)</h4>
+      <p>Redefine method <code>/IWBEP/IF_MGW_APPL_SRV_RUNTIME~CREATE_STREAM</code>. Read binary data from <code>IS_MEDIA_RESOURCE-VALUE</code>, the filename from <code>IV_SLUG</code>, and MIME type from <code>IS_MEDIA_RESOURCE-MIME_TYPE</code>.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>ICF Node — Verify HTTP handler</h4>
+      <p>In transaction <code>SICF</code>, verify the path <code>/sap/opu/odata/sap/</code> is active. The handler class <code>CL_HTTP_EXT_ODATA</code> processes all OData requests.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>Authorization — S_SERVICE Object</h4>
+      <p>Users need authorization object <code>S_SERVICE</code> with the service name. For attachment APIs, also check <code>S_WFAR_OBJ</code> for archive link permissions.</p>
+    </div>
+    <div class="timeline-item">
+      <h4>ICM Server — Adjust Upload Size Limit</h4>
+      <p>Profile parameter <code>icm/HTTP/max_request_size_KB</code> defaults to ~100 MB. Adjust in <code>RZ10</code> if you need larger file uploads.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 11. QUICK REFERENCE ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">11</span> Quick Reference</h2>
+  <p class="section-sub">Key properties, events, and headers at a glance</p>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>UploadSet Properties</h3>
+      <table class="data-table">
+        <thead><tr><th>Property</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td><code>instantUpload</code></td><td><code>false</code> — manual trigger</td></tr>
+          <tr><td><code>maxFileSize</code></td><td><code>10</code> (MB)</td></tr>
+          <tr><td><code>maxFileNameLength</code></td><td><code>100</code></td></tr>
+          <tr><td><code>mediaTypes</code></td><td>pdf, doc, xlsx, png, ...</td></tr>
+          <tr><td><code>terminationEnabled</code></td><td><code>true</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Required HTTP Headers</h3>
+      <table class="data-table">
+        <thead><tr><th>Header</th><th>Purpose</th></tr></thead>
+        <tbody>
+          <tr><td><code>X-CSRF-Token</code></td><td>Anti-forgery protection</td></tr>
+          <tr><td><code>Content-Type</code></td><td>File MIME type</td></tr>
+          <tr><td><code>Slug</code></td><td>Filename (URL-encoded)</td></tr>
+          <tr><td><code>BusinessObjectTypeName</code></td><td>BOR type (e.g. BUS2012)</td></tr>
+          <tr><td><code>LinkedSAPObjectKey</code></td><td>Object ID (e.g. PO number)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-top: 20px;">
+    <div class="step-card">
+      <div class="step-num" style="background:var(--sap-green);">1</div>
+      <h4>Add Files</h4>
+      <p>User selects files via dialog or drag-and-drop. Validated by type &amp; size.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num" style="background:var(--sap-orange);">2</div>
+      <h4>Fetch Token</h4>
+      <p>GET request with <code>X-CSRF-Token: Fetch</code>. Cached for the session.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num" style="background:var(--sap-blue);">3</div>
+      <h4>Upload Loop</h4>
+      <p>POST each file as binary with CSRF token. Log success/failure per file.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 12. COMMON BUSINESS OBJECT TYPES ===== -->
+<div class="section">
+  <h2 class="section-title"><span class="num">12</span> Common Business Object Types</h2>
+  <p class="section-sub">Use these in the <code>BusinessObjectTypeName</code> header</p>
+
+  <div class="card">
+    <table class="data-table">
+      <thead>
+        <tr><th>BOR Type</th><th>Description</th><th>Example Key</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>BUS2012</code></td><td>Purchase Order</td><td>4500000001</td></tr>
+        <tr><td><code>BUS2032</code></td><td>Sales Order</td><td>0000001234</td></tr>
+        <tr><td><code>BUS1001006</code></td><td>Material Master</td><td>000000000000012345</td></tr>
+        <tr><td><code>BUS2081</code></td><td>Purchase Requisition</td><td>0010001234</td></tr>
+        <tr><td><code>BUS2105</code></td><td>Billing Document</td><td>0090001234</td></tr>
+        <tr><td><code>BKPF</code></td><td>Accounting Document</td><td>Company+DocNo+FiscYear</td></tr>
+        <tr><td><code>BUS2010</code></td><td>RFQ (Request for Quotation)</td><td>6000001234</td></tr>
+        <tr><td><code>BUS2014</code></td><td>Goods Movement</td><td>5000001234</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div> <!-- /container -->
+
+<!-- ===== FOOTER ===== -->
+<div class="footer">
+  <p>SAP Fiori UI5 Multi-File Upload Guide &middot; S/4HANA On-Premise &middot; SAPUI5 1.108+</p>
+  <p style="margin-top:6px;">Built with SVG diagrams, no external dependencies</p>
+</div>
+
+</body>
+</html>

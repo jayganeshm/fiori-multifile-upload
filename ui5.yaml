@@ -1,0 +1,24 @@
+specVersion: "3.0"
+metadata:
+  name: fiori-multifile-upload
+type: application
+framework:
+  name: SAPUI5
+  version: "1.120.0"
+  libraries:
+    - name: sap.m
+    - name: sap.ui.core
+    - name: sap.ui.layout
+    - name: sap.f
+server:
+  customMiddleware:
+    # Proxy to S/4HANA On-Prem backend
+    - name: fiori-tools-proxy
+      afterMiddleware: compression
+      configuration:
+        ignoreCertError: true
+        backend:
+          # ── Change this to your S/4HANA server ──
+          - path: /sap
+            url: https://your-s4hana-server.company.com:44300
+            client: "100"

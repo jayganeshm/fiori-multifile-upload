@@ -1,0 +1,166 @@
+<mvc:View
+    controllerName="com.mycompany.fileupload.controller.Upload"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:upload="sap.m.upload"
+    xmlns:core="sap.ui.core"
+    xmlns:l="sap.ui.layout">
+
+    <App id="app">
+        <Page
+            id="uploadPage"
+            title="{i18n>pageTitle}"
+            showNavButton="false"
+            class="sapUiResponsivePadding--header sapUiResponsivePadding--content">
+
+            <headerContent>
+                <Button
+                    id="btnUploadAll"
+                    text="{i18n>uploadAll}"
+                    type="Emphasized"
+                    icon="sap-icon://upload-to-cloud"
+                    press=".onUploadAll" />
+            </headerContent>
+
+            <VBox class="sapUiSmallMargin">
+
+                <!-- ============ FILE UPLOAD PANEL ============ -->
+                <Panel
+                    id="panelUpload"
+                    headerText="{i18n>panelUploadTitle}"
+                    expandable="false"
+                    class="sapUiSmallMarginBottom">
+
+                    <upload:UploadSet
+                        id="uploadSet"
+                        instantUpload="false"
+                        showIcons="true"
+                        terminationEnabled="true"
+                        maxFileNameLength="100"
+                        maxFileSize="10"
+                        mediaTypes="pdf,doc,docx,xls,xlsx,png,jpg,jpeg,txt,csv,zip"
+                        fileTypeMismatch=".onFileTypeMismatch"
+                        fileSizeExceeded=".onFileSizeExceeded"
+                        afterItemAdded=".onAfterItemAdded"
+                        afterItemRemoved=".onAfterItemRemoved"
+                        beforeUploadStarts=".onBeforeUploadStarts"
+                        uploadCompleted=".onUploadCompleted">
+
+                        <upload:toolbar>
+                            <OverflowToolbar>
+                                <Title
+                                    text="{i18n>selectedFiles} ({viewModel>/fileCount})"
+                                    level="H2" />
+                                <ToolbarSpacer />
+                                <FileUploader
+                                    id="fileUploader"
+                                    name="myFileUpload"
+                                    multiple="true"
+                                    buttonOnly="true"
+                                    buttonText="{i18n>addFiles}"
+                                    icon="sap-icon://add-document"
+                                    style="Transparent"
+                                    change=".onFileAdded"
+                                    sameFilenameAllowed="false" />
+                            </OverflowToolbar>
+                        </upload:toolbar>
+
+                    </upload:UploadSet>
+
+                </Panel>
+
+                <!-- ============ PARAMETERS PANEL ============ -->
+                <Panel
+                    id="panelParams"
+                    headerText="{i18n>panelParamsTitle}"
+                    expandable="true"
+                    expanded="false"
+                    class="sapUiSmallMarginBottom">
+
+                    <l:Grid
+                        defaultSpan="XL4 L4 M6 S12"
+                        class="sapUiSmallMargin">
+
+                        <VBox>
+                            <Label text="{i18n>objectType}" />
+                            <Input
+                                id="inputObjectType"
+                                value="BUS2012"
+                                placeholder="{i18n>objectTypePlaceholder}"
+                                showClearIcon="true" />
+                        </VBox>
+
+                        <VBox>
+                            <Label text="{i18n>objectKey}" />
+                            <Input
+                                id="inputObjectKey"
+                                placeholder="{i18n>objectKeyPlaceholder}"
+                                showClearIcon="true" />
+                        </VBox>
+
+                        <VBox>
+                            <Label text="{i18n>semanticObject}" />
+                            <Input
+                                id="inputSemanticObject"
+                                placeholder="{i18n>semanticObjectPlaceholder}"
+                                showClearIcon="true" />
+                        </VBox>
+
+                    </l:Grid>
+
+                </Panel>
+
+                <!-- ============ UPLOAD LOG PANEL ============ -->
+                <Panel
+                    id="panelLog"
+                    headerText="{i18n>panelLogTitle}"
+                    expandable="true"
+                    expanded="true"
+                    visible="{viewModel>/logVisible}"
+                    class="sapUiSmallMarginBottom">
+
+                    <headerToolbar>
+                        <OverflowToolbar>
+                            <Title text="{i18n>panelLogTitle}" level="H2" />
+                            <ToolbarSpacer />
+                            <Button
+                                text="{i18n>clearLog}"
+                                icon="sap-icon://delete"
+                                type="Transparent"
+                                press=".onClearLog" />
+                        </OverflowToolbar>
+                    </headerToolbar>
+
+                    <List
+                        id="logList"
+                        items="{viewModel>/logEntries}"
+                        noDataText="{i18n>noUploadsYet}">
+
+                        <StandardListItem
+                            title="{viewModel>fileName}"
+                            description="{viewModel>message}"
+                            icon="{viewModel>icon}"
+                            highlight="{viewModel>highlight}"
+                            info="{viewModel>timestamp}"
+                            infoState="{viewModel>highlight}" />
+
+                    </List>
+
+                </Panel>
+
+            </VBox>
+
+            <!-- ============ FOOTER ============ -->
+            <footer>
+                <Toolbar>
+                    <ToolbarSpacer />
+                    <Label
+                        text="{i18n>footerInfo}"
+                        class="sapUiTinyMarginEnd" />
+                </Toolbar>
+            </footer>
+
+        </Page>
+    </App>
+
+</mvc:View>

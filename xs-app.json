@@ -1,0 +1,19 @@
+{
+    "welcomeFile": "/index.html",
+    "authenticationMethod": "route",
+    "routes": [
+        {
+            "source": "^/sap/opu/odata/sap/API_CV_ATTACHMENT_SRV/(.*)$",
+            "target": "/sap/opu/odata/sap/API_CV_ATTACHMENT_SRV/$1",
+            "authenticationType": "xsuaa",
+            "destination": "S4HANA_ONPREM",
+            "csrfProtection": false
+        },
+        {
+            "source": "^(.*)$",
+            "target": "$1",
+            "service": "html5-apps-repo-rt",
+            "authenticationType": "xsuaa"
+        }
+    ]
+}

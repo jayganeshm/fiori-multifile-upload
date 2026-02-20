@@ -1,0 +1,14 @@
+{
+    "name": "fiori-multifile-upload",
+    "version": "1.0.0",
+    "description": "SAP Fiori UI5 Multi-File Upload to S/4HANA On-Premise",
+    "scripts": {
+        "start": "ui5 serve --open index.html",
+        "build": "ui5 build --clean-dest",
+        "deploy": "fiori deploy --config ui5-deploy.yaml"
+    },
+    "devDependencies": {
+        "@ui5/cli": "^3.0.0",
+        "@sap/ux-ui5-tooling": "^1.0.0"
+    }
+}
