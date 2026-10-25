@@ -4,7 +4,8 @@
     xmlns="sap.m"
     xmlns:upload="sap.m.upload"
     xmlns:core="sap.ui.core"
-    xmlns:l="sap.ui.layout">
+    xmlns:l="sap.ui.layout"
+    xmlns:unified="sap.ui.unified">
 
     <App id="app">
         <Page
@@ -52,7 +53,7 @@
                                     text="{i18n>selectedFiles} ({viewModel>/fileCount})"
                                     level="H2" />
                                 <ToolbarSpacer />
-                                <FileUploader
+                                <unified:FileUploader
                                     id="fileUploader"
                                     name="myFileUpload"
                                     multiple="true"
